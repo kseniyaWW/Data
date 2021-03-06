@@ -1,0 +1,81 @@
+#Set up and connect Twitter
+
+Twitter connectAPI key
+```{r}
+#install.packages("twitteR")
+
+#using the twitteR package ####
+library(twitteR)
+
+#From the twitter app (Keys and tokens)
+api_key <- "insert_API_key" # API key 
+api_secret <- "insert_API_secret_key" #API secret key 
+token <- "insert_Access_token" #token 
+token_secret <- "insert_Access_token_secret" #token secret
+
+setup_twitter_oauth(api_key, api_secret, token, token_secret) # setup for accessing twitter using the information above
+
+tweets <- searchTwitter('#fakenews AND [facebook OR #facebook]', n=1000, lang = "en") # the function searchTwitter search for tweets based on the specified parameters
+
+tweets.df <-twListToDF(tweets) # creates a data frame with one row per tweet
+
+tweetDF <- as.data.frame(tweets.df)
+
+```
+
+
+#Web-scrapping
+```{r}
+# read the library (rvest)
+library(rvest)
+
+#get all links: daily basis
+p0001 <- read_html(unlist("https://www.borgerforslag.dk/"))
+
+links <- p0001 %>% 
+  html_nodes("a") %>% 
+  html_attr("href")
+
+links <- data.frame(links)
+
+head(links)
+
+links <- as.character(unique(links[grep("/se-og-stoet-forslag/", links$links),]))
+
+links <- paste("https://www.borgerforslag.dk",links,sep="")
+
+date <- rep(Sys.time(),length(links))
+dailylinks <- data.frame(links,date)
+colnames(dailylinks) = c("link","linkdate")
+
+head(dailylinks)
+
+#scraping all urls from the crawl ####
+proposal <- c()
+titles <- c()
+
+for(url in links){
+  page <- read_html(unlist(url))
+  
+  texts <- page %>% 
+    html_node("div.article") %>%
+    html_text() 
+  
+  titel <- page %>%
+    html_nodes("div.cc552X") %>%
+    html_text()
+  
+  titles <- append(titles, titel[1])
+  proposal <- append(proposal, texts)
+}
+
+proposalData <- data.frame(titles,proposal)
+
+```
+
+
+
+
+
+
+
