@@ -8,12 +8,15 @@ Twitter connectAPI key
 library(twitteR)
 
 #From the twitter app (Keys and tokens)
-api_key <- "insert_API_key" # API key 
-api_secret <- "insert_API_secret_key" #API secret key 
-token <- "insert_Access_token" #token 
-token_secret <- "insert_Access_token_secret" #token secret
+api_key <- "insert" # API key 
+api_secret <- "insert" #API secret key BEARER TOKEN
+token <- "insert" #token 
+token_secret <- "insert" #token secret
+
 
 setup_twitter_oauth(api_key, api_secret, token, token_secret) # setup for accessing twitter using the information above
+
+tweets <- searchTwitter(q="rstats")
 
 tweets <- searchTwitter('#fakenews AND [facebook OR #facebook]', n=1000, lang = "en") # the function searchTwitter search for tweets based on the specified parameters
 
@@ -21,8 +24,48 @@ tweets.df <-twListToDF(tweets) # creates a data frame with one row per tweet
 
 tweetDF <- as.data.frame(tweets.df)
 
+View(tweetDF)
+
 ```
 
+
+#Timeline scrap
+```{r}
+library(rtweet) 
+library(tidytext)
+library(ggpubr) 
+library(tidyverse) 
+library(httpuv)
+library(ROAuth)
+library(base64enc)
+library(twitteR)
+
+cred <- OAuthFactory$new(consumerKey = "insert_consumer_key",
+                     consumerSecret = "insert_consumer_key_secret",
+                     requestURL = "https:////api.twitter.com/oauth/request_token",
+                     accessURL ="https://api.twitter.com/oauth/access_token",
+                     authURL = "https://api.twitter.com/oauth/authorize")
+
+save(cred,file="twitter authentication.Rdata")
+load("twitter authentication.Rdata")
+
+setup_twitter_oauth("insert_consumer_key", "insert_consumer_key_secret",
+                    "access_token", 
+                    "access_token_secret")
+1
+
+Nike10.03 <- userTimeline('NikeService', n=1000)
+Nike10.03 <- twListToDF(Nike10.03)
+View(Nike10.03)
+
+#that piece of code converts directly most recent tweets (max 3200) posted to the DF
+nike <- get_timeline("NikeService", n=3200)
+View(nike)
+
+
+
+
+```
 
 #Web-scrapping
 ```{r}
@@ -70,6 +113,15 @@ for(url in links){
 }
 
 proposalData <- data.frame(titles,proposal)
+
+View(proposalData)
+```
+```{r}
+library(devtools)
+library(Rfacebook)
+library(RCurl)
+#install_github("Rfacebook", "pablobarbera", subdir="Rfacebook")
+fb_oauth <- fbOAuth(app_id="2896318003969298", app_secret="dca4e90a7761abbdfdc7498f887a9201",extended_permissions = TRUE)
 
 ```
 
